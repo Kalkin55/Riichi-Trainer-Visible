@@ -67,3 +67,32 @@ a:hover {
     -o-transition: width 0.35s ease;
     transition: width 0.35s ease;
 }
+.efficiency {
+    display: block;
+    margin-bottom: 3px;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 0.95em;
+    font-weight: bold;
+    line-height: 1.5em;
+    color: white;
+    user-select: none;
+}
+
+.efficiencyHidden {
+    background-color: transparent;
+}
+
+.efficiencyBest {
+    box-shadow: 0 0 0 2px #1e7e34, 0 0 6px 1px #28a745;
+}
+
+.efficiencyBackward {
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+    opacity: 0.85;
+}
+
+.withEfficiency .index {
+    top: 1.8em;
+}

@@ -1,6 +1,13 @@
 import React from 'react';
 import { Row } from 'reactstrap';
 import Tile from './Tile';
+import { convertRedFives } from '../scripts/TileConversions';
+
+/** Returns the efficiency info for a tile, or undefined if efficiency isn't being shown. */
+function getEfficiency(props, tile) {
+    if (!props.efficiency) return undefined;
+    return props.efficiency[convertRedFives(tile)];
+}
 
 function Hand(props) {
     const tiles = [];
@@ -27,6 +34,8 @@ function Hand(props) {
                         key={index++}
                         tile={i - 5}
                         displayTile={hasLastDraw && props.blind ? 30 : i - 5}
+                        efficiency={getEfficiency(props, i - 5)}
+                        efficiencyRevealed={props.efficiencyRevealed}
                         onClick={props.onTileClick}
                         showIndexes={props.showIndexes}
                     />
@@ -43,6 +52,8 @@ function Hand(props) {
                     key={index++}
                     tile={i}
                     displayTile={hasLastDraw && props.blind ? 30 : i}
+                    efficiency={getEfficiency(props, i)}
+                    efficiencyRevealed={props.efficiencyRevealed}
                     onClick={props.onTileClick}
                     showIndexes={props.showIndexes}
                 />
@@ -58,6 +69,8 @@ function Hand(props) {
                 key={index++}
                 tile={lastDraw}
                 displayTile={lastDraw}
+                efficiency={getEfficiency(props, lastDraw)}
+                efficiencyRevealed={props.efficiencyRevealed}
                 onClick={props.onTileClick}
                 showIndexes={props.showIndexes}
             />

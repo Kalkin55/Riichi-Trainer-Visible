@@ -30,6 +30,8 @@ class Settings extends React.Component {
                 useTimer: false,
                 time: 5,
                 extraTime: 10,
+                showEfficiency: true,
+                efficiencyDelay: 0,
             }
         };
 
@@ -66,7 +68,9 @@ class Settings extends React.Component {
                     tilesInHand: savedSettings.tilesInHand || 14,
                     useTimer: savedSettings.useTimer,
                     time: savedSettings.time || 5,
-                    extraTime: savedSettings.extraTime === undefined ? 10 : savedSettings.extraTime
+                    extraTime: savedSettings.extraTime === undefined ? 10 : savedSettings.extraTime,
+                    showEfficiency: savedSettings.showEfficiency === undefined ? true : savedSettings.showEfficiency,
+                    efficiencyDelay: savedSettings.efficiencyDelay || 0
                 }
 
                 this.setState({
@@ -255,6 +259,22 @@ class Settings extends React.Component {
                                     min={0} max={99} step={1}
                                     value={this.state.settings.extraTime} onChange={this.onSettingChanged} />
                                 <span className="blackText">&nbsp;{t("settings.seconds")}</span>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col className="form-check form-check-inline">
+                                <Input className="form-check-input" type="checkbox" id="showEfficiency"
+                                    checked={this.state.settings.showEfficiency} onChange={this.onSettingChanged} />
+                                <Label className="form-check-label" for="showEfficiency">{t("settings.showEfficiency")}</Label>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col className="form-check form-check-inline">
+                                <Label className="form-check-label" for="efficiencyDelay">{t("settings.efficiencyDelay")}&nbsp;</Label>
+                                <NumericInput className="form-check-input" type="number" id="efficiencyDelay"
+                                    min={0} max={99} step={1}
+                                    value={this.state.settings.efficiencyDelay} onChange={this.onSettingChanged} />
+                                <span className="blackText">&nbsp;{t("settings.seconds")} {t("settings.efficiencyDelayHint")}</span>
                             </Col>
                         </Row>
                     </CardBody></Card>

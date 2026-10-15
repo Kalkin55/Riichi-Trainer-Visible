@@ -10,6 +10,7 @@ import ValueTileDisplay from "../components/ValueTileDisplay";
 import StatsDisplay from "../components/ukeire-quiz/StatsDisplay";
 import { generateHand, fillHand } from '../scripts/GenerateHand';
 import { calculateDiscardUkeire, calculateUkeireFromOnlyHand } from "../scripts/UkeireCalculator";
+import { calculateDiscardEfficiency } from "../scripts/DiscardEfficiency";
 import { calculateMinimumShanten, calculateStandardShanten } from "../scripts/ShantenCalculator";
 import { convertRedFives } from "../scripts/TileConversions";
 import { convertHandToTenhouString, convertHandToTileIndexArray } from "../scripts/HandConversions";
@@ -32,6 +33,8 @@ class UkeireQuiz extends React.Component {
         this.updateTime = this.onUpdateTime.bind(this);
         this.timerUpdate = null;
         this.timer = null;
+        this.revealTimer = null;
+        this.efficiencyCache = { key: null, value: undefined };
         this.state = {
             hand: null,
             lastDraw: -1,
@@ -59,6 +62,7 @@ class UkeireQuiz extends React.Component {
             disclaimerSeen: false,
             currentTime: 0,
             currentBonus: 0,
+            efficiencyRevealed: false,
         }
     }
 
@@ -90,6 +94,8 @@ class UkeireQuiz extends React.Component {
             clearTimeout(this.timer);
             clearInterval(this.timerUpdate);
         }
+
+        clearTimeout(this.revealTimer);
     }
 
     onSettingsChanged(settings) {
@@ -102,7 +108,46 @@ class UkeireQuiz extends React.Component {
 
         this.setState({
             settings: settings
-        });
+        }, () => this.scheduleEfficiencyReveal());
+    }
+
+    /** Hides the discard efficiency labels, then reveals them after the delay set in the settings. */
+    scheduleEfficiencyReveal() {
+        clearTimeout(this.revealTimer);
+
+        let delay = this.state.settings.efficiencyDelay;
+
+        if (!delay || delay <= 0) {
+            this.setState({ efficiencyRevealed: true });
+            return;
+        }
+
+        this.setState({ efficiencyRevealed: false });
+        this.revealTimer = setTimeout(() => this.setState({ efficiencyRevealed: true }), delay * 1000);
+    }
+
+    /**
+     * Calculates the efficiency of each discard from the current hand, reusing the last result if the hand hasn't changed.
+     * @returns {DiscardEfficiency[]|undefined} The efficiency of each discard, or undefined if there's nothing to discard.
+     */
+    getDiscardEfficiency() {
+        let { hand, remainingTiles, isComplete, settings } = this.state;
+        if (!hand || !remainingTiles || isComplete) return undefined;
+
+        let tileCount = hand.reduce((total, count) => total + count, 0);
+        if (tileCount % 3 !== 2) return undefined;
+
+        let key = hand.join(",") + "|" + remainingTiles.join(",") + "|" + settings.exceptions;
+
+        if (this.efficiencyCache.key !== key) {
+            let shantenFunction = settings.exceptions ? calculateMinimumShanten : calculateStandardShanten;
+            this.efficiencyCache = {
+                key: key,
+                value: calculateDiscardEfficiency(hand, remainingTiles, shantenFunction)
+            };
+        }
+
+        return this.efficiencyCache.value;
     }
 
     /** Puts all the tiles in the player's hand into the player's discards. */
@@ -193,6 +238,8 @@ class UkeireQuiz extends React.Component {
             currentTime: this.state.settings.time + 2,
             currentBonus: this.state.settings.extraTime
         });
+
+        this.scheduleEfficiencyReveal();
 
         if (this.state.disclaimerSeen && this.state.settings.useTimer) {
             this.timer = setTimeout(
@@ -457,6 +504,10 @@ class UkeireQuiz extends React.Component {
             disclaimerSeen: true,
             currentTime: this.state.settings.time,
         }, isComplete ? () => this.saveStats() : undefined);
+
+        if (!isComplete) {
+            this.scheduleEfficiencyReveal();
+        }
     }
 
     onUpdateTime() {
@@ -579,6 +630,7 @@ class UkeireQuiz extends React.Component {
     render() {
         let { t } = this.props;
         let blind = this.state.players.length && this.state.players[0].discards.length && this.state.settings.blind && !this.state.isComplete;
+        let efficiency = this.state.settings.showEfficiency && !blind ? this.getDiscardEfficiency() : undefined;
 
         return (
             <Container>
@@ -595,11 +647,15 @@ class UkeireQuiz extends React.Component {
                     ? <Hand tiles={this.state.hand}
                         lastDraw={this.state.lastDraw}
                         onTileClick={this.onTileClicked}
+                        efficiency={efficiency}
+                        efficiencyRevealed={this.state.efficiencyRevealed}
                         showIndexes={this.state.settings.showIndexes && !blind}
                         blind={blind} />
                     : <SortedHand tiles={this.state.shuffle}
                         lastDraw={this.state.lastDraw}
                         onTileClick={this.onTileClicked}
+                        efficiency={efficiency}
+                        efficiencyRevealed={this.state.efficiencyRevealed}
                         showIndexes={this.state.settings.showIndexes && !blind}
                         blind={blind} />
                 }
