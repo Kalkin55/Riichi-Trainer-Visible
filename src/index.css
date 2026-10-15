@@ -96,3 +96,37 @@ a:hover {
 .withEfficiency .index {
     top: 1.8em;
 }
+
+/* Hand history and discard pool panels, styled to match the dark page background */
+.panelHeader {
+    background-color: #343a40;
+    color: #f8f9fa;
+    border: 1px solid #495057;
+}
+
+.panelHeader:hover, .panelHeader:focus {
+    background-color: #3d444b;
+    color: #ffffff;
+}
+
+.darkPanel .list-group-item {
+    background-color: #2b3035;
+    border-color: #495057;
+}
+
+/* Colored result entries (bg-success, bg-warning, ...) keep their own text color */
+.darkPanel .list-group-item:not([class*="bg-"]) {
+    color: #f8f9fa;
+}
+
+.darkPanel .blackText {
+    color: #f8f9fa;
+}
+
+.darkPanel .list-group-item:not([class*="bg-"]) .tenhouLink {
+    color: #8ab4f8;
+}
+
+.darkPanel .list-group-item:not([class*="bg-"]) .tenhouLink:hover {
+    color: #aecbfa;
+}

@@ -40,8 +40,8 @@ class DiscardPool extends React.Component {
         }
 
         return (
-            <Col xs="12" sm={this.state.collapsed ? "12" : ""}>
-                <Button className="btn-block bg-light" color="basic" onClick={this.toggle}>{t("discards.label")}</Button>
+            <Col className="darkPanel" xs="12" sm={this.state.collapsed ? "12" : ""}>
+                <Button className="btn-block panelHeader" color="basic" onClick={this.toggle}>{t("discards.label")}</Button>
                 <Collapse isOpen={!this.state.collapsed}>
                     <ListGroup>
                         <ListGroupItem className="justify-content-center">
