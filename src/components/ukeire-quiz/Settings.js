@@ -54,7 +54,7 @@ class Settings extends React.Component {
                     circles: savedSettings.circles,
                     honors: savedSettings.honors,
                     threePlayer: savedSettings.threePlayer,
-                    redFives: savedSettings.redFives || 3,
+                    redFives: savedSettings.redFives === undefined ? 3 : savedSettings.redFives,
                     verbose: savedSettings.verbose,
                     showIndexes: savedSettings.showIndexes,
                     extraConcise: savedSettings.extraConcise,
@@ -87,7 +87,8 @@ class Settings extends React.Component {
     }
 
     onSettingChanged(event, numberString, numberInput) {
-        if (!event) return;
+        // Number inputs pass their value as the first argument, which can be 0, so only bail on a cleared input.
+        if (event === null || event === undefined) return;
 
         let settings = this.state.settings;
 
